@@ -25,6 +25,8 @@ API REST que permite gestionar los jugadores y equipos a los que pertenecen.
 
 ### API REST Requests
 
+On `var/secture-test.postman_collection.json` can be found the PostMan Collection that includes all request to aid with the code review.
+
 Add postion POST `http://127.0.0.1:8000/api/position` Send alike JSON.
 ```
 {
