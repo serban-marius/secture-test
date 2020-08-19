@@ -89,7 +89,7 @@ class PlayersController extends AbstractController
             'price' => $player->getPrice($currency)
         ];
 
-        return new JsonResponse($player, Response::HTTP_OK);
+        return new JsonResponse($data, Response::HTTP_OK);
     }
 
     /**
