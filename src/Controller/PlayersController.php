@@ -5,13 +5,10 @@ namespace App\Controller;
 use App\Repository\PlayersRepository;
 use App\Repository\PositionRepository;
 use App\Repository\TeamRepository;
-use App\Service\PlayersService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -52,13 +49,13 @@ class PlayersController extends AbstractController
         $price = $data['price'];
 
         if (empty($name) || empty($price)) {
-            throw new NotFoundHttpException('Expecting mandatory parameters!');
+            return new JsonResponse(['status' => 'Name & Price are required parameters.'], Response::HTTP_OK);
         }
         if (empty($team)) {
-            throw new NotFoundHttpException('Team should exist!');
+            return new JsonResponse(['status' => 'Team should exist.'], Response::HTTP_OK);
         }
         if (empty($position)) {
-            throw new NotFoundHttpException('Position should exist!');
+            return new JsonResponse(['status' => 'Position should exist.'], Response::HTTP_OK);
         }
 
         $this->playersRepository->savePlayer($name, $team, $position, $price);
@@ -78,7 +75,7 @@ class PlayersController extends AbstractController
         $player = $this->playersRepository->findOneBy(['id' => $id]);
 
         if (empty($player)){
-            throw new HttpException(400, "Player does not exist.");
+            return new JsonResponse(['status' => 'Player does not exist.'], Response::HTTP_OK);
         }
 
         $data = [
@@ -103,7 +100,7 @@ class PlayersController extends AbstractController
         $players = $this->playersRepository->findAll();
 
         if (empty($players)){
-            throw new HttpException(400, "There are no playes.");
+            return new JsonResponse(['status' => 'There are no players.'], Response::HTTP_OK);
         }
 
         $data = [];
@@ -132,7 +129,7 @@ class PlayersController extends AbstractController
         $player = $this->playersRepository->findOneBy(['id' => $id]);
 
         if (empty($player)){
-            throw new HttpException(400, "Player does not exist.");
+            return new JsonResponse(['status' => 'Player does not exist.'], Response::HTTP_OK);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -159,7 +156,7 @@ class PlayersController extends AbstractController
         $player = $this->playersRepository->findOneBy(['id' => $id]);
 
         if (empty($player)){
-            throw new HttpException(400, "Player does not exist.");
+            return new JsonResponse(['status' => 'Player does not exist.'], Response::HTTP_OK);
         }
 
         $this->playersRepository->removePlayer($player);
@@ -179,7 +176,9 @@ class PlayersController extends AbstractController
         $players = $this->playersRepository->findBy(['team' => $team_id]);
 
         if (empty($players)){
-            throw new HttpException(400, "Team does not exist & or there are no players.");
+            return new JsonResponse(
+                ['status' => 'Team does not exist & or there are no players.'],
+                Response::HTTP_OK);
         }
 
         $data = [];
@@ -209,7 +208,9 @@ class PlayersController extends AbstractController
         $players = $this->playersRepository->findBy(['position' => $position_id]);
 
         if (empty($players)){
-            throw new HttpException(400, "Position does not exist & or there are no players.");
+            return new JsonResponse(
+                ['status' => 'Position does not exist & or there are no players.'],
+                Response::HTTP_OK);
         }
 
         $data = [];
@@ -245,7 +246,9 @@ class PlayersController extends AbstractController
         ]);
 
         if (empty($players)){
-            throw new HttpException(400, "Position / Team does not exist & or there are no players.");
+            return new JsonResponse(
+                ['status' => 'Team / Position does not exist & or there are no players.'],
+                Response::HTTP_OK);
         }
 
         $data = [];

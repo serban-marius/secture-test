@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\PlayersRepository;
 use App\Repository\TeamRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,10 +21,12 @@ class TeamController extends AbstractController
 {
 
     private $teamRepository;
+    private $playersRepository;
 
-    public function __construct(TeamRepository $teamRepository)
+    public function __construct(TeamRepository $teamRepository, PlayersRepository $playersRepository)
     {
         $this->teamRepository = $teamRepository;
+        $this->playersRepository = $playersRepository;
     }
 
     /**
@@ -37,8 +40,8 @@ class TeamController extends AbstractController
 
         $name = $data['name'];
 
-        if (empty($name)){
-            throw new NotFoundHttpException('Expecting mandatory parameters!');
+        if (empty($name)) {
+            return new JsonResponse(['status' => 'Name is a required parameter.'], Response::HTTP_OK);
         }
 
         $this->teamRepository->saveTeam($name);
@@ -55,8 +58,8 @@ class TeamController extends AbstractController
     {
         $team = $this->teamRepository->findOneBy(['id' => $id]);
 
-        if (empty($team)){
-            throw new HttpException(400, "Team does not exist.");
+        if (empty($team)) {
+            return new JsonResponse(['status' => 'Team does not exist!'], Response::HTTP_OK);
         }
 
         $data = [
@@ -113,8 +116,18 @@ class TeamController extends AbstractController
     {
         $team = $this->teamRepository->findOneBy(['id' => $id]);
 
-        if (empty($team)){
-            throw new HttpException(400, "Team does not exist.");
+        if (empty($team)) {
+            return new JsonResponse(['status' => 'Team does not exist!'], Response::HTTP_OK);
+        }
+
+        $players = $this->playersRepository->findBy(['team' => $id]);
+
+        if (!empty($players)) {
+            return new JsonResponse(
+                ['status' =>
+                    'All players of the team should be erased or modified before attempting to erase the team.'
+                ],
+                Response::HTTP_OK);
         }
 
         $this->teamRepository->removeTeam($team);

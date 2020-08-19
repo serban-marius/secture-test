@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\PlayersRepository;
 use App\Repository\PositionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,10 +21,12 @@ class PositionController extends AbstractController
 {
 
     private $positionRepository;
+    private $playersRepository;
 
-    public function __construct(PositionRepository $positionRepository)
+    public function __construct(PositionRepository $positionRepository, PlayersRepository $playersRepository)
     {
         $this->positionRepository = $positionRepository;
+        $this->playersRepository = $playersRepository;
     }
 
     /**
@@ -38,7 +41,7 @@ class PositionController extends AbstractController
         $name = $data['name'];
 
         if (empty($name)){
-            throw new NotFoundHttpException('Expecting mandatory parameters!');
+            return new JsonResponse(['status' => 'Name is a required parameter.'], Response::HTTP_OK);
         }
 
         $this->positionRepository->savePosition($name);
@@ -56,7 +59,7 @@ class PositionController extends AbstractController
         $position = $this->positionRepository->findOneBy(['id' => $id]);
 
         if (empty($position)){
-            throw new HttpException(400, "Position does not exist.");
+            return new JsonResponse(['status' => 'Position does not exist!'], Response::HTTP_OK);
         }
 
         $data = [
@@ -97,7 +100,7 @@ class PositionController extends AbstractController
         $position = $this->positionRepository->findOneBy(['id' => $id]);
 
         if (empty($position)){
-            throw new HttpException(400, "Position does not exist.");
+            return new JsonResponse(['status' => 'Position does not exist!'], Response::HTTP_OK);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -119,7 +122,17 @@ class PositionController extends AbstractController
         $position = $this->positionRepository->findOneBy(['id' => $id]);
 
         if (empty($position)){
-            throw new HttpException(400, "Position does not exist.");
+            return new JsonResponse(['status' => 'Position does not exist!'], Response::HTTP_OK);
+        }
+
+        $players = $this->playersRepository->findBy(['position' => $id]);
+
+        if (!empty($players)) {
+            return new JsonResponse(
+                ['status' =>
+                    'All players with this position should be erased or modified before attempting to erase the position.'
+                ],
+                Response::HTTP_OK);
         }
 
         $this->positionRepository->removePosition($position);
