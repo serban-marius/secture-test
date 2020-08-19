@@ -9,3 +9,4 @@
 /var/log
 /vendor/
 ###< symfony/framework-bundle ###
+.idea
